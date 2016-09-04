@@ -7,8 +7,10 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
 import com.test.sekretenko.testapp.R;
+import java.util.ArrayList;
 
 import adapters.TestAdapter;
 import api.TestApi;
@@ -19,6 +21,7 @@ import rx.schedulers.Schedulers;
 public class MainActivity extends AppCompatActivity {
 
     private RecyclerView recyclerView;
+    private TestAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,19 +34,37 @@ public class MainActivity extends AppCompatActivity {
         recyclerView = (RecyclerView) findViewById(R.id.test_recycler_view);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
+        ArrayList<TestItem> data = null;
 
+        //Progress bar
+        View progressBarView = findViewById(R.id.progress);
 
-        //Получаем список тестовых айтемов и передаем их в адаптер
-        TestApi api = new TestApi();
-        api.getItems()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(testResponse -> {
-                    //Создаем адаптер и передаем его в recycler view
-                    TestAdapter adapter = new TestAdapter(testResponse.body);
-                    recyclerView.setAdapter(adapter);
-                });
+        if(savedInstanceState != null) {
+            data = savedInstanceState.getParcelableArrayList("TestData");
+        }
+
+        progressBarView.setVisibility(View.VISIBLE);
+        if (data == null) {
+            //Получаем список тестовых айтемов и передаем их в адаптер
+            TestApi api = new TestApi();
+            api.getItems()
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(testResponse -> {
+                        //Создаем адаптер и передаем его в recycler view
+                        adapter = new TestAdapter((ArrayList<TestItem>) testResponse.body, this);
+                        recyclerView.setAdapter(adapter);
+                        progressBarView.setVisibility(View.GONE);
+                    },throwable -> {
+                        throwable.printStackTrace();
+                        progressBarView.setVisibility(View.GONE);
+                    });
+        } else {
+            adapter = new TestAdapter(data, this);
+            recyclerView.setAdapter(adapter);
+        }
     }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -64,5 +85,11 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putParcelableArrayList("TestData",  adapter.getData());
+        super.onSaveInstanceState(outState);
     }
 }

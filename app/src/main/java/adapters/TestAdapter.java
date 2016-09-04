@@ -1,39 +1,51 @@
 package adapters;
 
+import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.squareup.picasso.Picasso;
 import com.test.sekretenko.testapp.R;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import api.models.TestItem;
+import api.models.TestResponse;
 
 /**
  * Created by vsekr_000 on 04.09.2016.
  * Адаптер
  */
 public class TestAdapter extends RecyclerView.Adapter<TestAdapter.ViewHolder> {
-    private List<TestItem> data;
+    private ArrayList<TestItem> data;
+    private Context context;
+    private int expandedPosition = -1;
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
+        private final View expandableArea;
         public TextView id;
         public TextView name;
         public TextView version;
+        public ImageView image;
 
         public ViewHolder(View itemView) {
             super(itemView);
             id = (TextView) itemView.findViewById(R.id.info_id);
             name = (TextView) itemView.findViewById(R.id.info_name);
             version = (TextView) itemView.findViewById(R.id.info_version);
+            image = (ImageView) itemView.findViewById(R.id.info_image);
+            expandableArea = itemView.findViewById(R.id.info_expandable);
         }
     }
 
-    public TestAdapter(List<TestItem> data) {
+    public TestAdapter(ArrayList<TestItem> data, Context context) {
         this.data = data;
+        this.context = context;
     }
 
     @Override
@@ -51,6 +63,29 @@ public class TestAdapter extends RecyclerView.Adapter<TestAdapter.ViewHolder> {
         holder.id.setText(String.valueOf(currentData.id));
         holder.name.setText(currentData.name);
         holder.version.setText(String.valueOf(currentData.version));
+
+        if (position == expandedPosition) {
+            holder.expandableArea.setVisibility(View.VISIBLE);
+        } else {
+            holder.expandableArea.setVisibility(View.GONE);
+        }
+
+        Picasso.with(context)
+                .load(currentData.image)
+                .resize(50, 50)
+                .centerCrop()
+                .into(holder.image);
+
+        holder.itemView.setOnClickListener(v -> {
+            int prev = expandedPosition;
+            expandedPosition = holder.getLayoutPosition();
+
+            if (expandedPosition >= 0 && prev != expandedPosition) {
+                notifyItemChanged(prev);
+            }
+
+            notifyItemChanged(expandedPosition);
+        });
     }
 
     @Override
@@ -58,8 +93,7 @@ public class TestAdapter extends RecyclerView.Adapter<TestAdapter.ViewHolder> {
         return data.size();
     }
 
-
-
-
-
+    public ArrayList<TestItem> getData() {
+        return data;
+    }
 }
