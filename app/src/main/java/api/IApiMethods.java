@@ -10,6 +10,6 @@ import rx.Observable;
  */
 public interface IApiMethods {
 
-    @GET("/server_data.txt")
+    @GET("server_data.txt")
     Observable<TestResponse> getItems();
 }

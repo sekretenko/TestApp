@@ -5,8 +5,12 @@ package api.models;
  * Тестовый айтем
  */
 public class TestItem {
+
     public int id;
+
     public String name;
+
     public float version;
+
     public String image;
 }
