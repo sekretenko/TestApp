@@ -10,19 +10,17 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 import com.test.sekretenko.testapp.R;
-
 import java.util.ArrayList;
 import java.util.List;
 
 import api.models.TestItem;
-import api.models.TestResponse;
 
 /**
  * Created by vsekr_000 on 04.09.2016.
  * Адаптер
  */
 public class TestAdapter extends RecyclerView.Adapter<TestAdapter.ViewHolder> {
-    private ArrayList<TestItem> data;
+    private List<TestItem> data;
     private Context context;
     private int expandedPosition = -1;
 
@@ -43,7 +41,7 @@ public class TestAdapter extends RecyclerView.Adapter<TestAdapter.ViewHolder> {
         }
     }
 
-    public TestAdapter(ArrayList<TestItem> data, Context context) {
+    public TestAdapter(List<TestItem> data, Context context) {
         this.data = data;
         this.context = context;
     }
@@ -93,7 +91,7 @@ public class TestAdapter extends RecyclerView.Adapter<TestAdapter.ViewHolder> {
         return data.size();
     }
 
-    public ArrayList<TestItem> getData() {
+    public List<TestItem> getData() {
         return data;
     }
 }

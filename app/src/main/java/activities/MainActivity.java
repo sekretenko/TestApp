@@ -1,6 +1,7 @@
 package activities;
 
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -11,6 +12,7 @@ import android.view.View;
 
 import com.test.sekretenko.testapp.R;
 import java.util.ArrayList;
+import java.util.List;
 
 import adapters.TestAdapter;
 import api.TestApi;
@@ -34,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
         recyclerView = (RecyclerView) findViewById(R.id.test_recycler_view);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
-        ArrayList<TestItem> data = null;
+        List<TestItem> data = null;
 
         //Progress bar
         View progressBarView = findViewById(R.id.progress);
@@ -43,8 +45,8 @@ public class MainActivity extends AppCompatActivity {
             data = savedInstanceState.getParcelableArrayList("TestData");
         }
 
-        progressBarView.setVisibility(View.VISIBLE);
         if (data == null) {
+            progressBarView.setVisibility(View.VISIBLE);
             //Получаем список тестовых айтемов и передаем их в адаптер
             TestApi api = new TestApi();
             api.getItems()
@@ -89,7 +91,11 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-        outState.putParcelableArrayList("TestData",  adapter.getData());
+        ArrayList<TestItem> data = (ArrayList<TestItem>) adapter.getData();
+        if (data != null) {
+            outState.putParcelableArrayList("TestData", data);
+        }
+
         super.onSaveInstanceState(outState);
     }
 }
